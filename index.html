@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#14284b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>HRPCI PR CRM</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+:root{--navy:#14284b;--red:#b3262e;--gold:#c9a227;--bg:#f3f4f8;--ink:#1b2333;--mut:#667085;--line:#e2e5ec;--ok:#1a7f4b;--warn:#b54708}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+input,select,textarea{font-size:16px}
+header{position:sticky;top:0;z-index:5;background:var(--navy);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;display:flex;align-items:center;gap:10px;border-bottom:3px solid var(--gold)}
+header h1{font-size:17px;margin:0;flex:1}header small{display:block;font-weight:400;opacity:.75;font-size:12px}
+.ib{background:rgba(255,255,255,.12);border:0;color:#fff;width:38px;height:38px;border-radius:10px;font-size:18px}
+main{padding:12px 12px calc(86px + env(safe-area-inset-bottom));max-width:720px;margin:0 auto}
+nav{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:6}
+nav button{flex:1;border:0;background:none;padding:9px 0 8px;font-size:11px;color:var(--mut)}
+nav button b{display:block;font-size:20px;line-height:1.1}
+nav button.on{color:var(--navy);font-weight:700}
+nav .plus b{background:var(--red);color:#fff;width:44px;height:44px;border-radius:50%;margin:-20px auto 2px;line-height:44px;font-size:26px;box-shadow:0 3px 8px rgba(0,0,0,.25)}
+.card{background:#fff;border-radius:14px;padding:12px;margin:0 0 10px;box-shadow:0 1px 3px rgba(16,24,40,.08)}
+.r1{display:flex;align-items:center;gap:8px}.r1 b{flex:1;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sub{color:var(--mut);font-size:13px;margin:2px 0 6px}.sub em{font-style:normal;color:var(--navy);font-weight:600}
+.meta{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:13px;margin-bottom:8px}
+.chip{font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;background:#e8ecf4;color:var(--navy);white-space:nowrap}
+.st-new{background:#e0ecff;color:#1849a9}.st-called{background:#fff1d6;color:#8a5a00}.st-interested{background:#e6f4ea;color:#1a7f4b}
+.st-payment-pending{background:#ffe4d6;color:#b54708}.st-advance-paid{background:#d9f3e3;color:#0b6b3a}.st-fully-paid{background:#1a7f4b;color:#fff}
+.st-not-interested{background:#eceff3;color:#667085}.st-next-ceremony{background:#efe6ff;color:#5b2da8}
+.pri{font-style:normal;font-size:11px;padding:2px 7px;border-radius:6px;font-weight:700}.pri.Hot{background:#fde2e2;color:#b42318}.pri.Warm{background:#fff1d6;color:#8a5a00}.pri.Cold{background:#e0ecff;color:#1849a9}
+.al{font-weight:700;font-size:12px;padding:2px 8px;border-radius:6px}.al.OVERDUE{background:#fde2e2;color:#b42318}.al.TODAY{background:#ffe5b4;color:var(--warn)}.al.UPCOMING{background:#d9f3e3;color:var(--ok)}.al.none{background:#f0f1f4;color:var(--mut);font-weight:400}
+.acts{display:grid;grid-template-columns:1fr 1.3fr 1fr .8fr;gap:6px}
+.b{display:block;text-align:center;text-decoration:none;border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 2px;font-size:13px;font-weight:600;color:var(--navy)}
+.b.call{background:var(--navy);color:#fff;border-color:var(--navy)}.b.wa{background:#1fa855;color:#fff;border-color:#1fa855}
+h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:16px 2px 8px}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px}
+.kpi{background:#fff;border-radius:12px;padding:10px 6px;text-align:center;box-shadow:0 1px 3px rgba(16,24,40,.08)}
+.kpi b{display:block;font-size:20px;color:var(--navy)}.kpi span{font-size:11px;color:var(--mut)}
+.kpi.red b{color:var(--red)}.kpi.warn b{color:var(--warn)}
+input[type=search],.fi,select.fi,textarea.fi{width:100%;border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 12px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:8px 0;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chips button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 12px;font-size:13px;white-space:nowrap}
+.chips button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;font-size:12.5px}
+th{background:var(--navy);color:#fff;text-align:right;padding:8px 6px;font-weight:600}th:first-child,td:first-child{text-align:left}
+td{padding:8px 6px;text-align:right;border-top:1px solid var(--line)}tr.tot td{font-weight:700;background:#f7f8fb}
+.bar{height:8px;background:#e8ecf4;border-radius:5px;overflow:hidden;margin-top:4px}.bar i{display:block;height:100%;background:var(--gold)}
+.empty{text-align:center;color:var(--mut);padding:36px 10px}
+.more{width:100%;padding:11px;border:1px dashed var(--line);background:none;border-radius:10px;color:var(--navy);font-weight:600}
+#login{min-height:100vh;display:none;flex-direction:column;justify-content:center;padding:24px;background:var(--navy);color:#fff}
+#login .box{background:#fff;color:var(--ink);border-radius:16px;padding:18px;max-width:420px;width:100%;margin:0 auto}
+#login h1{text-align:center;margin:0 0 4px;font-size:22px;color:#fff}#login p.t{text-align:center;color:#c8d0e0;margin:0 0 18px}
+.lbl{font-size:12px;font-weight:600;color:var(--mut);margin:10px 0 4px;display:block}
+.pbtn{width:100%;margin-top:14px;padding:13px;border:0;border-radius:11px;background:var(--red);color:#fff;font-weight:700;font-size:16px}
+.err{color:#b42318;font-size:13px;margin-top:8px;min-height:18px}
+#ov{position:fixed;inset:0;background:rgba(10,20,40,.5);z-index:20;display:none}
+#sheet{position:fixed;left:0;right:0;bottom:0;max-height:94vh;background:#fff;border-radius:18px 18px 0 0;z-index:21;display:none;flex-direction:column}
+#sheet .hd{display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}#sheet .hd b{flex:1;font-size:17px}
+#sheet .bd{overflow:auto;padding:4px 16px 12px;-webkit-overflow-scrolling:touch}
+#sheet .ft{padding:10px 16px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.sec{font-size:12px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.06em;margin:16px 0 0}
+.qd{display:flex;gap:6px;margin-top:6px}.qd button{flex:1;border:1px solid var(--line);background:#f7f8fb;border-radius:8px;padding:7px 0;font-size:13px}
+.step{display:flex;gap:8px}.step button{width:44px;border:1px solid var(--line);background:#f7f8fb;border-radius:10px;font-size:20px}.step input{text-align:center}
+#toast{position:fixed;left:12px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom));background:#1b2333;color:#fff;padding:11px 14px;border-radius:12px;z-index:30;display:none;align-items:center;gap:10px}
+#toast span{flex:1}#toast button{background:none;border:0;color:var(--gold);font-weight:700}
+.note{background:#fff8e1;border-radius:10px;padding:10px 12px;font-size:13px;color:#6b4e00;margin:8px 0}
+</style>
+</head>
+<body>
+<div id="login">
+  <h1>HRPCI PR CRM</h1><p class="t">Award leads tracker</p>
+  <div class="box">
+    <label class="lbl">Who are you?</label><select id="lu" class="fi"></select>
+    <label class="lbl">PIN</label><input id="lp" class="fi" type="password" inputmode="numeric" autocomplete="current-password" placeholder="Your PIN">
+    <div class="err" id="le"></div>
+    <button class="pbtn" id="lb">Login</button>
+    <button class="pbtn" id="inst" style="display:none;background:var(--navy)">Install app on this phone</button>
+  </div>
+</div>
+<div id="app" style="display:none">
+  <header><h1>HRPCI PR CRM<small id="who"></small></h1><button class="ib" id="rf" title="Refresh">⟳</button><button class="ib" id="lo" title="Logout">⎋</button></header>
+  <main id="view"></main>
+  <nav>
+    <button data-v="today"><b>📅</b>Today</button>
+    <button data-v="leads"><b>👥</b>Leads</button>
+    <button class="plus" data-v="add"><b>+</b>Add</button>
+    <button data-v="report"><b>📊</b>Report</button>
+  </nav>
+</div>
+<div id="ov"></div><div id="sheet"></div><div id="toast"><span></span><button></button></div>
+
+<script>
+// 1) After you deploy the Apps Script web app, paste its URL here:
+const API_URL = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let S=JSON.parse(localStorage.getItem('hrpci_s')||'{}');
+S.view=S.view||'today';S.q='';S.sf='';S.ef='';S.rd='';S.lim=40;
+const persist=()=>localStorage.setItem('hrpci_s',JSON.stringify({token:S.token,user:S.user,lists:S.lists,leads:S.leads,execs:S.execs,view:S.view,at:S.at}));
+const pad=n=>String(n).padStart(2,'0');
+const fmtD=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const today=()=>fmtD(new Date());
+const addDays=(s,n)=>{const d=s?new Date(s+'T00:00:00'):new Date();d.setDate(d.getDate()+n);return fmtD(d)};
+const dshow=s=>s?new Date(s+'T00:00:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short'}):'–';
+const inr=n=>'₹'+Number(n||0).toLocaleString('en-IN');
+const cls=s=>String(s||'').toLowerCase().replace(/[^a-z]+/g,'-').replace(/^-|-$/g,'');
+const isAdmin=()=>S.user&&S.user.role==='admin';
+const alertOf=l=>{if(!l.nextFollowup||['Fully Paid','Not Interested'].includes(l.status))return'';const t=today();return l.nextFollowup<t?'OVERDUE':l.nextFollowup===t?'TODAY':'UPCOMING'};
+
+async function api(action,p){
+  if(API_URL.startsWith('PASTE'))throw new Error('App not connected yet. Paste the Apps Script URL in index.html.');
+  let r;
+  try{r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({action,token:S.token},p||{}))});}
+  catch(e){throw new Error('No internet. Try again.');}
+  const j=await r.json();
+  if(j.error==='auth'){logout();throw new Error('Please login again.');}
+  return j;
+}
+let tt;function toast(msg,act){const t=$('#toast');t.querySelector('span').textContent=msg;const b=t.querySelector('button');b.style.display=act?'':'none';if(act){b.textContent=act.label;b.onclick=()=>{t.style.display='none';act.fn()}}t.style.display='flex';clearTimeout(tt);tt=setTimeout(()=>t.style.display='none',act?5000:2600)}
+
+/* ---------- login ---------- */
+async function showLogin(){
+  $('#app').style.display='none';$('#login').style.display='flex';
+  try{const r=await api('users');$('#lu').innerHTML=r.users.map(u=>`<option value="${esc(u.id)}">${esc(u.name)}${u.role==='admin'?' (Admin)':''}</option>`).join('');}
+  catch(e){$('#le').textContent=e.message}
+}
+$('#lb').onclick=async()=>{
+  $('#le').textContent='';$('#lb').disabled=true;
+  try{const r=await api('login',{id:$('#lu').value,pin:$('#lp').value});
+    if(!r.ok){$('#le').textContent=r.error;return}
+    S.token=r.token;S.user=r.user;$('#lp').value='';await boot();}
+  catch(e){$('#le').textContent=e.message}finally{$('#lb').disabled=false}
+};
+$('#lp').addEventListener('keydown',e=>{if(e.key==='Enter')$('#lb').click()});
+function logout(){S.token=null;S.user=null;S.leads=[];persist();showLogin()}
+$('#lo').onclick=()=>{if(confirm('Logout?'))logout()};
+let dip;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dip=e;$('#inst').style.display='block'});
+$('#inst').onclick=()=>dip&&dip.prompt();
+
+/* ---------- data ---------- */
+async function load(quiet){
+  try{
+    const r=await api('data');
+    if(!r.ok)throw new Error(r.error);
+    Object.assign(S,{user:r.user,lists:r.lists,leads:r.leads,execs:r.execs,at:Date.now()});persist();
+    if(!quiet)toast('Updated ✓');
+  }catch(e){toast(e.message)}
+}
+async function boot(){
+  $('#login').style.display='none';$('#app').style.display='block';
+  $('#who').textContent=S.user.name+(isAdmin()&&S.user.name!=='Admin'?' · Admin':'');
+  render();await load(true);render();
+}
+$('#rf').onclick=async()=>{toast('Refreshing…');await load();render()};
+document.addEventListener('visibilitychange',async()=>{if(!document.hidden&&S.token&&Date.now()-(S.at||0)>60000){await load(true);render()}});
+
+/* ---------- views ---------- */
+const vis=()=>(S.leads||[]).filter(l=>!S.ef||l.execId===S.ef);
+function card(l){
+  const a=alertOf(l),bal=(+l.fee||0)-(+l.received||0);
+  return `<article class="card" data-k="${esc(l.tab)}|${l.row}">
+  <div class="r1"><b>${esc(l.name)}</b>${l.priority?`<i class="pri ${esc(l.priority)}">${esc(l.priority)}</i>`:''}<span class="chip st-${cls(l.status)}">${esc(l.status||'No status')}</span></div>
+  <div class="sub">${esc([l.city,l.award].filter(Boolean).join(' • '))}${isAdmin()?` • <em>${esc(l.exec)}</em>`:''}</div>
+  <div class="meta">${a?`<span class="al ${a}">${a==='UPCOMING'?'Next':a} · ${dshow(l.nextFollowup)}</span>`:'<span class="al none">No follow-up set</span>'}${(+l.calls)?`<span>📞 ${l.calls} calls</span>`:''}${l.fee?`<span>Fee ${inr(l.fee)} · Balance <b>${inr(bal)}</b></span>`:''}</div>
+  <div class="acts"><a class="b call" href="tel:+91${l.phone}">📞 Call</a><a class="b wa" href="https://wa.me/91${l.phone}" target="_blank" rel="noopener">💬 WhatsApp</a><button class="b" data-act="log">✓ Log call</button><button class="b" data-act="edit">Edit</button></div></article>`;
+}
+function execSel(){
+  if(!isAdmin())return'';
+  return `<select class="fi" id="ef" style="margin-bottom:6px"><option value="">All executives</option>${(S.execs||[]).map(e=>`<option value="${esc(e.id)}"${S.ef===e.id?' selected':''}>${esc(e.name)}</option>`).join('')}</select>`;
+}
+function vToday(){
+  const L=vis(),by=(a,b)=>(a.nextFollowup||'').localeCompare(b.nextFollowup||'');
+  const over=L.filter(l=>alertOf(l)==='OVERDUE').sort(by),td=L.filter(l=>alertOf(l)==='TODAY'),
+        fresh=L.filter(l=>(!l.status||l.status==='New')&&!(+l.calls));
+  const sec=(t,a)=>a.length?`<h2>${t} (${a.length})</h2>`+a.map(card).join(''):'';
+  return execSel()+`<div class="kpis"><div class="kpi red"><b>${over.length}</b><span>Overdue</span></div><div class="kpi warn"><b>${td.length}</b><span>Today</span></div><div class="kpi"><b>${fresh.length}</b><span>New, not called</span></div></div>`+
+    sec('Overdue',over)+sec('Call today',td)+sec('New leads – call first',fresh)+
+    (over.length+td.length+fresh.length?'':'<div class="empty">🎉 All clear. No follow-ups due.<br>Tap + to add a lead.</div>');
+}
+function vLeads(){
+  const st=(S.lists&&S.lists.status)||[],q=S.q.toLowerCase();
+  let L=vis().filter(l=>(!S.sf||l.status===S.sf)&&(!q||(l.name+' '+l.phone+' '+l.city).toLowerCase().includes(q)));
+  L.sort((a,b)=>b.row-a.row);const n=L.length;L=L.slice(0,S.lim);
+  return execSel()+`<input type="search" id="q" placeholder="Search name, phone, city" value="${esc(S.q)}">
+  <div class="chips"><button data-sf="" class="${S.sf?'':'on'}">All</button>${st.map(s=>`<button data-sf="${esc(s)}" class="${S.sf===s?'on':''}">${esc(s)}</button>`).join('')}</div>
+  <div style="color:var(--mut);font-size:12px;margin:0 2px 8px">${n} lead${n===1?'':'s'}</div>`+
+  (L.map(card).join('')||'<div class="empty">No leads found.</div>')+(n>S.lim?'<button class="more" id="more">Show more</button>':'');
+}
+function stats(a,d){const p=a.filter(l=>l.payDate===d);return{came:a.filter(l=>l.date===d).length,called:a.filter(l=>l.firstCalled===d).length,int:a.filter(l=>l.interestedOn===d).length,booked:p.length,cash:p.reduce((s,l)=>s+(+l.received||0),0)}}
+function vReport(){
+  const d=S.rd||today(),L=vis(),ex=(S.execs||[]).filter(e=>!S.ef||e.id===S.ef),mp=d.slice(0,7);
+  const sum=(a,k)=>a.reduce((s,l)=>s+(+l[k]||0),0);
+  const day=stats(L,d);
+  const rows=ex.map(e=>{const a=(S.leads||[]).filter(l=>l.execId===e.id),s=stats(a,d),mb=a.filter(l=>(l.payDate||'').startsWith(mp)).length;
+    return{e,n:a.length,s,mb,rec:sum(a,'received'),bal:sum(a,'fee')-sum(a,'received'),tg:e.target||0,intr:a.filter(l=>l.interestedOn).length,bk:a.filter(l=>l.payDate).length}});
+  const st=(S.lists&&S.lists.status)||[],tot=L.length||1;
+  const mbTot=L.filter(l=>(l.payDate||'').startsWith(mp)).length,tgTot=ex.reduce((s,e)=>s+(e.target||0),0);
+  return execSel()+`<label class="lbl">Report date</label><input type="date" class="fi" id="rd" value="${d}">
+  <h2>${d===today()?'Today':dshow(d)}</h2>
+  <div class="kpis" style="grid-template-columns:repeat(5,1fr)"><div class="kpi"><b>${day.came}</b><span>Leads</span></div><div class="kpi"><b>${day.called}</b><span>Called</span></div><div class="kpi"><b>${day.int}</b><span>Interested</span></div><div class="kpi"><b>${day.booked}</b><span>Booked</span></div><div class="kpi"><b style="font-size:15px">${inr(day.cash)}</b><span>Received</span></div></div>
+  <h2>All time</h2>
+  <div class="kpis"><div class="kpi"><b>${L.length}</b><span>Total leads</span></div><div class="kpi"><b>${L.filter(l=>l.interestedOn).length}</b><span>Interested</span></div><div class="kpi"><b>${L.filter(l=>l.payDate).length}</b><span>Booked</span></div><div class="kpi"><b style="font-size:16px">${inr(sum(L,'received'))}</b><span>Received</span></div><div class="kpi warn"><b style="font-size:16px">${inr(sum(L,'fee')-sum(L,'received'))}</b><span>Balance due</span></div><div class="kpi red"><b>${L.filter(l=>['OVERDUE','TODAY'].includes(alertOf(l))).length}</b><span>Follow-ups due</span></div></div>
+  <h2>Monthly target</h2><div class="card" style="margin:0"><b>${mbTot}</b> booked this month${tgTot?` of ${tgTot} target`:''}${tgTot?`<div class="bar"><i style="width:${Math.min(100,mbTot/tgTot*100)}%"></i></div>`:''}</div>`+
+  (isAdmin()?`<h2>By executive</h2><div style="overflow:auto"><table><tr><th>Name</th><th>Leads</th><th>Int.</th><th>Booked</th><th>Month</th><th>Received</th><th>Balance</th></tr>${rows.map(r=>`<tr><td>${esc(r.e.name)}</td><td>${r.n}</td><td>${r.intr}</td><td>${r.bk}</td><td>${r.mb}/${r.tg}</td><td>${inr(r.rec)}</td><td>${inr(r.bal)}</td></tr>`).join('')}</table></div>`:'')+
+  `<h2>Lead status funnel</h2>`+st.map(s=>{const c=L.filter(l=>l.status===s).length;return`<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:13px"><span>${esc(s)}</span><b>${c}</b></div><div class="bar"><i style="width:${c/tot*100}%"></i></div></div>`}).join('');
+}
+function render(){
+  if(!S.user)return;
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===S.view));
+  $('#view').innerHTML=({today:vToday,leads:vLeads,report:vReport}[S.view]||vToday)();
+  const q=$('#q');if(q&&S.focusQ){q.focus();q.setSelectionRange(q.value.length,q.value.length);S.focusQ=0}
+}
+document.querySelector('nav').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.v==='add'){openEditor(null);return}S.view=b.dataset.v;S.lim=40;persist();render();scrollTo(0,0)};
+$('#view').addEventListener('input',e=>{if(e.target.id==='q'){S.q=e.target.value;S.lim=40;S.focusQ=1;render()}});
+$('#view').addEventListener('change',e=>{if(e.target.id==='ef'){S.ef=e.target.value;render()}if(e.target.id==='rd'){S.rd=e.target.value;render()}});
+$('#view').addEventListener('click',e=>{
+  const sf=e.target.closest('[data-sf]');if(sf){S.sf=sf.dataset.sf;S.lim=40;render();return}
+  if(e.target.id==='more'){S.lim+=40;render();return}
+  const a=e.target.closest('[data-act]');if(!a)return;
+  const k=a.closest('.card').dataset.k.split('|'),l=S.leads.find(x=>x.tab===k[0]&&x.row==k[1]);if(!l)return;
+  if(a.dataset.act==='edit')openEditor(l);else logCall(l);
+});
+
+/* ---------- saving ---------- */
+function upsert(l){const i=S.leads.findIndex(x=>x.tab===l.tab&&x.row===l.row);if(i>=0)S.leads[i]=l;else S.leads.push(l);persist()}
+async function saveLead(tab,row,fields,force){
+  const r=await api('save',{tab,row,fields,force});
+  if(r.dup&&!force){if(confirm(`This number is already in the sheet:\n${r.dup.name} (${r.dup.exec}).\n\nAdd it anyway?`))return saveLead(tab,row,fields,true);return null}
+  if(!r.ok)throw new Error(r.error||'Save failed');
+  upsert(r.lead);return r.lead;
+}
+async function logCall(l){
+  const f={calls:(+l.calls||0)+1,lastContact:today()};
+  if(!l.firstCalled)f.firstCalled=today();
+  if(!l.status||l.status==='New')f.status='Called';
+  toast('Saving…');
+  try{const r=await saveLead(l.tab,l.row,f);render();if(r)toast('Call logged ✓',{label:'Set follow-up',fn:()=>openEditor(r)})}catch(e){toast(e.message)}
+}
+
+/* ---------- editor ---------- */
+const sel=(id,arr,v,blank)=>`<select class="fi" id="${id}">${blank?'<option value=""></option>':''}${(arr||[]).concat(v&&!(arr||[]).includes(v)?[v]:[]).map(o=>`<option${o===v?' selected':''}>${esc(o)}</option>`).join('')}</select>`;
+const fl=(id,lab,inner)=>`<div><label class="lbl">${lab}</label>${inner}</div>`;
+const inp=(id,t,v,extra)=>`<input class="fi" id="${id}" type="${t}" value="${esc(v)}" ${extra||''}>`;
+function openEditor(l){
+  const n=!l,L=S.lists||{},v=l||{date:today(),status:'New',priority:'Warm',calls:0,fee:'',received:''};
+  const execPick=n&&isAdmin()?fl('f_tab','Assign to executive',`<select class="fi" id="f_tab">${(S.execs||[]).map(e=>`<option value="${esc(e.tab)}">${esc(e.name)}</option>`).join('')}</select>`):'';
+  $('#sheet').innerHTML=`<div class="hd"><b>${n?'Add new lead':'Edit lead'}</b><button class="ib" style="background:#eef0f5;color:#333" id="x">✕</button></div>
+  <div class="bd">
+  <div class="sec">Lead details</div>${execPick}
+  ${fl('f_name','Lead name *',inp('f_name','text',v.name||'','autocomplete="off"'))}
+  ${fl('f_phone','WhatsApp number (10 digits) *',inp('f_phone','tel',v.phone||'','inputmode="numeric" maxlength="14"'))}
+  <div class="g2">${fl('f_city','City / District',inp('f_city','text',v.city||''))}${fl('f_date','Date received',inp('f_date','date',v.date||''))}</div>
+  <div class="g2">${fl('f_field','Field of work',sel('f_field',L.field,v.field,1))}${fl('f_award','Award interested in',sel('f_award',L.award,v.award,1))}</div>
+  <div class="sec">Status</div>
+  <div class="g2">${fl('f_status','Status',sel('f_status',L.status,v.status,0))}${fl('f_priority','Priority',sel('f_priority',L.priority,v.priority,1))}</div>
+  <div class="sec">Follow-up</div>
+  ${fl('f_calls','Calls made',`<div class="step"><button type="button" data-st="-1">−</button>${inp('f_calls','number',v.calls||0,'inputmode="numeric" min="0"')}<button type="button" data-st="1">+</button></div>`)}
+  ${fl('f_next','Next follow-up',inp('f_nextFollowup','date',v.nextFollowup||'')+`<div class="qd"><button type="button" data-qd="1">Tomorrow</button><button type="button" data-qd="3">3 days</button><button type="button" data-qd="7">1 week</button><button type="button" data-qd="0">Clear</button></div>`)}
+  <div class="g2">${fl('f_lc','Last contact',inp('f_lastContact','date',v.lastContact||''))}${fl('f_fc','First called',inp('f_firstCalled','date',v.firstCalled||''))}</div>
+  ${fl('f_io','Interested on',inp('f_interestedOn','date',v.interestedOn||''))}
+  <div class="sec">Payment</div>
+  <div class="g2">${fl('f_fee','Package fee (₹)',inp('f_fee','number',v.fee||'','inputmode="numeric"'))}${fl('f_rec','Amount received (₹)',inp('f_received','number',v.received||'','inputmode="numeric"'))}</div>
+  <div class="note" id="bal"></div>
+  <div class="g2">${fl('f_pd','Payment date',inp('f_payDate','date',v.payDate||''))}${fl('f_pm','Pay mode',sel('f_payMode',L.payMode,v.payMode,1))}</div>
+  ${fl('f_docs','Documents received',sel('f_docs',L.docs,v.docs,1))}
+  ${fl('f_rem','Remarks',`<textarea class="fi" id="f_remarks" rows="3">${esc(v.remarks||'')}</textarea>`)}
+  </div>
+  <div class="ft"><div class="err" id="se"></div><button class="pbtn" style="margin:0" id="sv">Save</button></div>`;
+  $('#ov').style.display='block';$('#sheet').style.display='flex';
+  const bal=()=>{const f=+$('#f_fee').value||0,r=+$('#f_received').value||0;$('#bal').innerHTML=f?`Balance due: <b>${inr(f-r)}</b>`:'Enter package fee to see balance.'};bal();
+  $('#f_fee').oninput=$('#f_received').oninput=bal;
+  $('#x').onclick=closeEd;$('#ov').onclick=closeEd;
+  $('#sheet').querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{const i=$('#f_calls');i.value=Math.max(0,(+i.value||0)+ +b.dataset.st)});
+  $('#sheet').querySelectorAll('[data-qd]').forEach(b=>b.onclick=()=>{$('#f_nextFollowup').value=+b.dataset.qd?addDays(today(),+b.dataset.qd):''});
+  $('#sv').onclick=()=>doSave(l);
+}
+function closeEd(){$('#sheet').style.display='none';$('#ov').style.display='none'}
+async function doSave(l){
+  const g=id=>$('#'+id)?$('#'+id).value.trim():'';
+  const f={name:g('f_name'),phone:g('f_phone').replace(/\D/g,'').slice(-10),city:g('f_city'),date:g('f_date'),field:g('f_field'),award:g('f_award'),status:g('f_status'),priority:g('f_priority'),
+    calls:g('f_calls'),nextFollowup:g('f_nextFollowup'),lastContact:g('f_lastContact'),firstCalled:g('f_firstCalled'),interestedOn:g('f_interestedOn'),
+    fee:g('f_fee'),received:g('f_received'),payDate:g('f_payDate'),payMode:g('f_payMode'),docs:g('f_docs'),remarks:g('f_remarks')};
+  const err=m=>{$('#se').textContent=m};
+  if(!f.name)return err('Enter lead name.');
+  if(f.phone.length!==10)return err('WhatsApp number must be 10 digits.');
+  const t=today();
+  if(f.status==='Interested'&&!f.interestedOn)f.interestedOn=t;
+  if((+f.received>0)&&!f.payDate)f.payDate=t;
+  if((+f.calls>0)&&!f.firstCalled)f.firstCalled=t;
+  if((+f.calls>0)&&!f.lastContact)f.lastContact=t;
+  let out=f;
+  if(l){out={};Object.keys(f).forEach(k=>{const o=l[k]==null?'':String(l[k]);if(String(f[k])!==o&&!(o==='0'&&f[k]===''))out[k]=f[k]});if(!Object.keys(out).length){closeEd();return}}
+  $('#sv').disabled=true;$('#sv').textContent='Saving…';
+  try{const tab=l?l.tab:(isAdmin()?g('f_tab'):S.user.tab);
+    const r=await saveLead(tab,l?l.row:0,out);
+    if(r){closeEd();render();toast('Saved ✓')}
+  }catch(e){err(e.message)}finally{$('#sv').disabled=false;$('#sv').textContent='Save'}
+}
+
+/* ---------- start ---------- */
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+if(S.token&&S.user)boot();else showLogin();
+</script>
+</body>
+</html>
