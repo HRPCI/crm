@@ -34,8 +34,8 @@ nav .plus b{background:var(--red);color:#fff;width:44px;height:44px;border-radiu
 .st-not-interested{background:#eceff3;color:#667085}.st-next-ceremony{background:#efe6ff;color:#5b2da8}
 .pri{font-style:normal;font-size:11px;padding:2px 7px;border-radius:6px;font-weight:700}.pri.Hot{background:#fde2e2;color:#b42318}.pri.Warm{background:#fff1d6;color:#8a5a00}.pri.Cold{background:#e0ecff;color:#1849a9}
 .al{font-weight:700;font-size:12px;padding:2px 8px;border-radius:6px}.al.OVERDUE{background:#fde2e2;color:#b42318}.al.TODAY{background:#ffe5b4;color:var(--warn)}.al.UPCOMING{background:#d9f3e3;color:var(--ok)}.al.none{background:#f0f1f4;color:var(--mut);font-weight:400}
-.acts{display:grid;grid-template-columns:1fr 1.5fr 1.15fr .85fr .85fr;gap:5px}
-.b{display:block;text-align:center;text-decoration:none;border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 1px;font-size:12.5px;font-weight:600;color:var(--navy)}
+.acts{display:grid;grid-template-columns:1fr 1.3fr 1fr .8fr;gap:6px}
+.b{display:block;text-align:center;text-decoration:none;border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 2px;font-size:13px;font-weight:600;color:var(--navy)}
 .b.call{background:var(--navy);color:#fff;border-color:var(--navy)}.b.wa{background:#1fa855;color:#fff;border-color:#1fa855}
 h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:16px 2px 8px}
 .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px}
@@ -69,13 +69,6 @@ td{padding:8px 6px;text-align:right;border-top:1px solid var(--line)}tr.tot td{f
 #toast{position:fixed;left:12px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom));background:#1b2333;color:#fff;padding:11px 14px;border-radius:12px;z-index:30;display:none;align-items:center;gap:10px}
 #toast span{flex:1}#toast button{background:none;border:0;color:var(--gold);font-weight:700}
 .note{background:#fff8e1;border-radius:10px;padding:10px 12px;font-size:13px;color:#6b4e00;margin:8px 0}
-.rec{display:flex;flex-direction:column;gap:8px}.rbtn{border:0;border-radius:12px;padding:13px;font-weight:700;font-size:15px;color:#fff;background:var(--red);width:100%}
-.rbtn.alt{background:var(--navy)}.rbtn.gh{background:#eef0f5;color:var(--ink)}
-.rtime{font-size:30px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums;color:var(--red)}
-.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--red);margin-right:6px;animation:bl 1s infinite}@keyframes bl{50%{opacity:.2}}
-.ritem{border:1px solid var(--line);border-radius:12px;padding:10px;margin-top:8px}.ritem .t{display:flex;gap:8px;align-items:center}.ritem .t b{flex:1;font-size:14px}
-.ritem small{color:var(--mut)}.ritem audio{width:100%;margin-top:8px}
-.sm{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 10px;font-size:13px}
 </style>
 </head>
 <body>
@@ -108,7 +101,7 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbwkctPFmZ-biskxVOCWIkoj
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let S=JSON.parse(localStorage.getItem('hrpci_s')||'{}');
-S.recs=[];S.view=S.view||'today';S.q='';S.sf='';S.ef='';S.rd='';S.lim=40;
+S.view=S.view||'today';S.q='';S.sf='';S.ef='';S.rd='';S.lim=40;
 const persist=()=>localStorage.setItem('hrpci_s',JSON.stringify({token:S.token,user:S.user,lists:S.lists,leads:S.leads,execs:S.execs,view:S.view,at:S.at}));
 const pad=n=>String(n).padStart(2,'0');
 const fmtD=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
@@ -155,7 +148,7 @@ async function load(quiet){
   try{
     const r=await api('data');
     if(!r.ok)throw new Error(r.error);
-    Object.assign(S,{user:r.user,lists:r.lists,leads:r.leads,execs:r.execs,recs:r.recs||[],at:Date.now()});persist();
+    Object.assign(S,{user:r.user,lists:r.lists,leads:r.leads,execs:r.execs,at:Date.now()});persist();
     if(!quiet)toast('Updated ✓');
   }catch(e){toast(e.message)}
 }
@@ -169,14 +162,13 @@ document.addEventListener('visibilitychange',async()=>{if(!document.hidden&&S.to
 
 /* ---------- views ---------- */
 const vis=()=>(S.leads||[]).filter(l=>!S.ef||l.execId===S.ef);
-const recsFor=l=>(S.recs||[]).filter(r=>r.phone===l.phone&&r.tab===l.tab);
 function card(l){
-  const a=alertOf(l),bal=(+l.fee||0)-(+l.received||0),rc=recsFor(l).length;
+  const a=alertOf(l),bal=(+l.fee||0)-(+l.received||0);
   return `<article class="card" data-k="${esc(l.tab)}|${l.row}">
   <div class="r1"><b>${esc(l.name)}</b>${l.priority?`<i class="pri ${esc(l.priority)}">${esc(l.priority)}</i>`:''}<span class="chip st-${cls(l.status)}">${esc(l.status||'No status')}</span></div>
   <div class="sub">${esc([l.city,l.award].filter(Boolean).join(' • '))}${isAdmin()?` • <em>${esc(l.exec)}</em>`:''}</div>
   <div class="meta">${a?`<span class="al ${a}">${a==='UPCOMING'?'Next':a} · ${dshow(l.nextFollowup)}</span>`:'<span class="al none">No follow-up set</span>'}${(+l.calls)?`<span>📞 ${l.calls} calls</span>`:''}${l.fee?`<span>Fee ${inr(l.fee)} · Balance <b>${inr(bal)}</b></span>`:''}</div>
-  <div class="acts"><a class="b call" href="tel:+91${l.phone}">📞 Call</a><a class="b wa" href="https://wa.me/91${l.phone}" target="_blank" rel="noopener">💬 WhatsApp</a><button class="b" data-act="log">✓ Log call</button><button class="b" data-act="edit">Edit</button><button class="b" data-act="rec">🎙${rc?' '+rc:''}</button></div></article>`;
+  <div class="acts"><a class="b call" href="tel:+91${l.phone}">📞 Call</a><a class="b wa" href="https://wa.me/91${l.phone}" target="_blank" rel="noopener">💬 WhatsApp</a><button class="b" data-act="log">✓ Log call</button><button class="b" data-act="edit">Edit</button></div></article>`;
 }
 function execSel(){
   if(!isAdmin())return'';
@@ -232,7 +224,7 @@ $('#view').addEventListener('click',e=>{
   if(e.target.id==='more'){S.lim+=40;render();return}
   const a=e.target.closest('[data-act]');if(!a)return;
   const k=a.closest('.card').dataset.k.split('|'),l=S.leads.find(x=>x.tab===k[0]&&x.row==k[1]);if(!l)return;
-  if(a.dataset.act==='edit')openEditor(l);else if(a.dataset.act==='rec')openRec(l);else logCall(l);
+  if(a.dataset.act==='edit')openEditor(l);else logCall(l);
 });
 
 /* ---------- saving ---------- */
@@ -288,7 +280,7 @@ function openEditor(l){
   $('#sheet').querySelectorAll('[data-qd]').forEach(b=>b.onclick=()=>{$('#f_nextFollowup').value=+b.dataset.qd?addDays(today(),+b.dataset.qd):''});
   $('#sv').onclick=()=>doSave(l);
 }
-function closeEd(){stopTracks();$('#sheet').style.display='none';$('#ov').style.display='none'}
+function closeEd(){$('#sheet').style.display='none';$('#ov').style.display='none'}
 async function doSave(l){
   const g=id=>$('#'+id)?$('#'+id).value.trim():'';
   const f={name:g('f_name'),phone:g('f_phone').replace(/\D/g,'').slice(-10),city:g('f_city'),date:g('f_date'),field:g('f_field'),award:g('f_award'),status:g('f_status'),priority:g('f_priority'),
@@ -309,81 +301,6 @@ async function doSave(l){
     const r=await saveLead(tab,l?l.row:0,out);
     if(r){closeEd();render();toast('Saved ✓')}
   }catch(e){err(e.message)}finally{$('#sv').disabled=false;$('#sv').textContent='Save'}
-}
-
-
-/* ---------- call recordings ---------- */
-let MR=null,chunks=[],stream=null,rT=null,rStart=0,rBlob=null,rSecs=0,RL=null;const blobs={};
-const MAXSEC=900,MAXB=8*1024*1024;
-function stopTracks(){clearInterval(rT);try{if(MR&&MR.state!=='inactive'){MR.onstop=null;MR.stop()}}catch(e){}if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}MR=null;rBlob=null}
-const mmss=s=>Math.floor(s/60)+':'+pad(Math.round(s%60));
-const b64of=b=>new Promise((ok,no)=>{const f=new FileReader();f.onload=()=>ok(String(f.result).split(',')[1]);f.onerror=no;f.readAsDataURL(b)});
-function openRec(l){
-  stopTracks();RL=l;
-  const can=!!(navigator.mediaDevices&&window.MediaRecorder);
-  $('#sheet').innerHTML=`<div class="hd"><b>🎙 ${esc(l.name)}</b><button class="ib" style="background:#eef0f5;color:#333" id="x">✕</button></div>
-  <div class="bd"><div class="rec">
-   <div class="note">Tell the person that the call is being recorded. Recordings are private to you and the Admin.</div>
-   <div class="sec">Add a call recording</div>
-   <label class="rbtn alt" style="text-align:center;display:block">📁 Upload recording from my phone<input type="file" id="rf2" accept="audio/*,.m4a,.mp3,.aac,.wav,.ogg,.3gp" style="display:none"></label>
-   <div style="font-size:12px;color:var(--mut)">Use your phone's own call recorder (Phone app or Recorder app), then pick the file here. Max 8 MB.</div>
-   <div id="rbox">${can?`<button class="rbtn" id="rs" style="margin-top:6px">⏺ Record with microphone</button><div style="font-size:12px;color:var(--mut);margin-top:4px">For voice notes and meetings. During a phone call the phone may block the microphone; on speaker it may only catch your side.</div>`:'<div class="note">This browser cannot record. Use Upload.</div>'}</div>
-   <div class="err" id="re"></div>
-   <div class="sec">Saved recordings</div><div id="rl"></div>
-  </div></div>`;
-  $('#ov').style.display='block';$('#sheet').style.display='flex';
-  $('#x').onclick=closeEd;$('#ov').onclick=closeEd;
-  if($('#rs'))$('#rs').onclick=startRec;
-  $('#rf2').onchange=onUpload;
-  drawList();
-}
-async function startRec(){
-  $('#re').textContent='';
-  try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}})}
-  catch(e){$('#re').textContent='Microphone is blocked or in use. Allow it in browser settings, or use Upload.';return}
-  const mt=['audio/webm;codecs=opus','audio/mp4','audio/webm','audio/ogg'].find(t=>MediaRecorder.isTypeSupported(t))||'';
-  chunks=[];MR=new MediaRecorder(stream,Object.assign(mt?{mimeType:mt}:{},{audioBitsPerSecond:32000}));
-  MR.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
-  MR.onstop=()=>{clearInterval(rT);rSecs=(Date.now()-rStart)/1000;rBlob=new Blob(chunks,{type:MR.mimeType||mt||'audio/webm'});stream&&stream.getTracks().forEach(t=>t.stop());stream=null;preview()};
-  MR.start(1000);rStart=Date.now();
-  $('#rbox').innerHTML=`<div class="rtime"><span class="dot"></span><span id="rt">0:00</span></div><button class="rbtn" id="rstop">⏹ Stop</button>`;
-  rT=setInterval(()=>{const s=(Date.now()-rStart)/1000;$('#rt').textContent=mmss(s);if(s>=MAXSEC)MR.stop()},500);
-  $('#rstop').onclick=()=>MR.stop();
-}
-function preview(){
-  const url=URL.createObjectURL(rBlob);
-  $('#rbox').innerHTML=`<audio controls src="${url}" style="width:100%"></audio><input class="fi" id="rn" placeholder="Note (optional)" style="margin-top:8px"><div class="g2" style="margin-top:8px"><button class="rbtn gh" id="rd2">Discard</button><button class="rbtn" id="rsv">Save</button></div>`;
-  $('#rd2').onclick=()=>{rBlob=null;openRec(RL)};
-  $('#rsv').onclick=()=>sendRec(rBlob,Math.round(rSecs),$('#rn').value,'app');
-}
-const EXT={m4a:'audio/mp4',mp3:'audio/mpeg',aac:'audio/aac',wav:'audio/wav',ogg:'audio/ogg',opus:'audio/ogg','3gp':'audio/3gpp',webm:'audio/webm',amr:'audio/amr'};
-async function onUpload(e){
-  const f=e.target.files[0];if(!f)return;$('#re').textContent='';
-  if(f.size>MAXB){$('#re').textContent='File is too big (max 8 MB). Use a shorter recording.';return}
-  const mime=f.type||EXT[(f.name.split('.').pop()||'').toLowerCase()]||'audio/mp4';
-  const secs=await new Promise(ok=>{const a=new Audio(URL.createObjectURL(f));a.onloadedmetadata=()=>ok(isFinite(a.duration)?Math.round(a.duration):0);a.onerror=()=>ok(0);setTimeout(()=>ok(0),1500)});
-  await sendRec(new Blob([f],{type:mime}),secs,f.name,'upload');
-}
-async function sendRec(blob,secs,note,source){
-  $('#re').textContent='Saving…';
-  try{const r=await api('recSave',{tab:RL.tab,phone:RL.phone,name:RL.name,mime:blob.type,seconds:secs,note,source,b64:await b64of(blob)});
-    if(!r.ok)throw new Error(r.error);
-    S.recs.push(r.rec);blobs[r.rec.id]=URL.createObjectURL(blob);rBlob=null;toast('Recording saved ✓');openRec(RL);render();
-  }catch(e){$('#re').textContent=e.message}
-}
-function drawList(){
-  const L=recsFor(RL).sort((a,b)=>b.time.localeCompare(a.time));
-  $('#rl').innerHTML=L.map(r=>{const d=new Date(r.time);return`<div class="ritem" data-id="${esc(r.id)}"><div class="t"><b>${d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})} ${d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}${r.seconds?' · '+mmss(r.seconds):''}</b><button class="sm" data-p="1">▶ Play</button><button class="sm" data-d="1">🗑</button></div><small>${esc(r.exec)}${r.source==='upload'?' · uploaded':''}${r.note?' · '+esc(r.note):''}</small><div class="pl"></div></div>`}).join('')||'<div class="empty" style="padding:14px">No recordings yet.</div>';
-  $('#rl').onclick=async e=>{
-    const it=e.target.closest('.ritem');if(!it)return;const id=it.dataset.id;
-    if(e.target.dataset.d){if(!confirm('Delete this recording?'))return;try{const r=await api('recDel',{id});if(!r.ok)throw new Error(r.error);S.recs=S.recs.filter(x=>x.id!==id);drawList();render();toast('Deleted')}catch(x){toast(x.message)}return}
-    if(e.target.dataset.p){
-      const pl=it.querySelector('.pl');e.target.textContent='Loading…';
-      try{if(!blobs[id]){const r=await api('recGet',{id});if(!r.ok)throw new Error(r.error);const bin=atob(r.b64),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);blobs[id]=URL.createObjectURL(new Blob([u],{type:r.mime}))}
-        pl.innerHTML=`<audio controls autoplay src="${blobs[id]}"></audio><a class="sm" style="display:inline-block;margin-top:6px;text-decoration:none;color:var(--navy)" href="${blobs[id]}" download="call-${id.slice(0,6)}">⬇ Download</a>`;
-      }catch(x){toast(x.message)}finally{e.target.textContent='▶ Play'}
-    }
-  };
 }
 
 /* ---------- start ---------- */
