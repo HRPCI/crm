@@ -69,6 +69,8 @@ td{padding:8px 6px;text-align:right;border-top:1px solid var(--line)}tr.tot td{f
 #toast{position:fixed;left:12px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom));background:#1b2333;color:#fff;padding:11px 14px;border-radius:12px;z-index:30;display:none;align-items:center;gap:10px}
 #toast span{flex:1}#toast button{background:none;border:0;color:var(--gold);font-weight:700}
 .note{background:#fff8e1;border-radius:10px;padding:10px 12px;font-size:13px;color:#6b4e00;margin:8px 0}
+.msg{font-size:13px;background:#f7f8fb;border-radius:8px;padding:8px 10px;margin:6px 0;word-break:break-word}
+.asg{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:8px}.asg .b{padding:9px 18px;background:var(--red);color:#fff;border-color:var(--red)}
 </style>
 </head>
 <body>
@@ -90,6 +92,7 @@ td{padding:8px 6px;text-align:right;border-top:1px solid var(--line)}tr.tot td{f
     <button data-v="leads"><b>👥</b>Leads</button>
     <button class="plus" data-v="add"><b>+</b>Add</button>
     <button data-v="report"><b>📊</b>Report</button>
+    <button data-v="wa" id="navwa" style="display:none"><b>💬</b><span id="wacnt">WA Leads</span></button>
   </nav>
 </div>
 <div id="ov"></div><div id="sheet"></div><div id="toast"><span></span><button></button></div>
@@ -155,9 +158,12 @@ async function load(quiet){
 async function boot(){
   $('#login').style.display='none';$('#app').style.display='block';
   $('#who').textContent=S.user.name+(isAdmin()&&S.user.name!=='Admin'?' · Admin':'');
+  if(!isAdmin()&&S.view==='wa')S.view='today';
+  $('#navwa').style.display=isAdmin()?'':'none';
+  if(isAdmin())loadWA().then(render);
   render();await load(true);render();
 }
-$('#rf').onclick=async()=>{toast('Refreshing…');await load();render()};
+$('#rf').onclick=async()=>{toast('Refreshing…');await Promise.all([load(),loadWA()]);render()};
 document.addEventListener('visibilitychange',async()=>{if(!document.hidden&&S.token&&Date.now()-(S.at||0)>60000){await load(true);render()}});
 
 /* ---------- views ---------- */
@@ -210,16 +216,47 @@ function vReport(){
   (isAdmin()?`<h2>By executive</h2><div style="overflow:auto"><table><tr><th>Name</th><th>Leads</th><th>Int.</th><th>Booked</th><th>Month</th><th>Received</th><th>Balance</th></tr>${rows.map(r=>`<tr><td>${esc(r.e.name)}</td><td>${r.n}</td><td>${r.intr}</td><td>${r.bk}</td><td>${r.mb}/${r.tg}</td><td>${inr(r.rec)}</td><td>${inr(r.bal)}</td></tr>`).join('')}</table></div>`:'')+
   `<h2>Lead status funnel</h2>`+st.map(s=>{const c=L.filter(l=>l.status===s).length;return`<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:13px"><span>${esc(s)}</span><b>${c}</b></div><div class="bar"><i style="width:${c/tot*100}%"></i></div></div>`}).join('');
 }
+/* ---------- WhatsApp leads (admin only) ---------- */
+S.wa=null;
+async function loadWA(){
+  if(!isAdmin())return;
+  try{const r=await api('waleads');if(!r.ok)throw new Error(r.error);S.wa=r.leads}
+  catch(e){toast(e.message);if(S.wa===null)S.wa=[]}
+  $('#wacnt').textContent=(S.wa&&S.wa.length)?'WA Leads ('+S.wa.length+')':'WA Leads';
+}
+function vWA(){
+  if(!isAdmin())return'';
+  if(S.wa===null)return'<div class="empty">Loading…</div>';
+  const ex=S.execs||[];
+  return `<h2>New WhatsApp leads (${S.wa.length})</h2>`+(S.wa.map(w=>{
+    const opts=ex.map(e=>`<option value="${esc(e.id)}"${e.name===w.assigned?' selected':''}>${esc(e.name)}</option>`).join('');
+    return `<article class="card"><div class="r1"><b>${esc(w.name)}</b><span class="chip">${esc(w.received)}</span></div>
+    <div class="sub">${esc(w.phone)}</div>${w.message?`<div class="msg">${esc(w.message)}</div>`:''}
+    <div class="asg"><select class="fi" id="as_${w.row}"><option value="">Choose executive</option>${opts}</select><button class="b" data-as="${w.row}">Assign</button></div></article>`}).join('')||'<div class="empty">No new WhatsApp leads waiting.</div>');
+}
+async function doAssign(btn){
+  const row=btn.dataset.as,execId=$('#as_'+row).value;
+  if(!execId){toast('Choose an executive first');return}
+  btn.disabled=true;btn.textContent='…';
+  try{
+    const r=await api('assign',{row:+row,execId});
+    if(!r.ok)throw new Error(r.error||'Assign failed');
+    S.wa=S.wa.filter(w=>String(w.row)!==String(row));render();
+    toast(r.dup?'Already in sheet ('+r.dup.exec+') - skipped':'Assigned ✓');
+    await Promise.all([load(true),loadWA()]);render();
+  }catch(e){toast(e.message);btn.disabled=false;btn.textContent='Assign'}
+}
 function render(){
   if(!S.user)return;
   document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===S.view));
-  $('#view').innerHTML=({today:vToday,leads:vLeads,report:vReport}[S.view]||vToday)();
+  $('#view').innerHTML=({today:vToday,leads:vLeads,report:vReport,wa:vWA}[S.view]||vToday)();
   const q=$('#q');if(q&&S.focusQ){q.focus();q.setSelectionRange(q.value.length,q.value.length);S.focusQ=0}
 }
-document.querySelector('nav').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.v==='add'){openEditor(null);return}S.view=b.dataset.v;S.lim=40;persist();render();scrollTo(0,0)};
+document.querySelector('nav').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.v==='add'){openEditor(null);return}S.view=b.dataset.v;S.lim=40;persist();render();scrollTo(0,0);if(S.view==='wa')loadWA().then(render)};
 $('#view').addEventListener('input',e=>{if(e.target.id==='q'){S.q=e.target.value;S.lim=40;S.focusQ=1;render()}});
 $('#view').addEventListener('change',e=>{if(e.target.id==='ef'){S.ef=e.target.value;render()}if(e.target.id==='rd'){S.rd=e.target.value;render()}});
 $('#view').addEventListener('click',e=>{
+  const as=e.target.closest('[data-as]');if(as){doAssign(as);return}
   const sf=e.target.closest('[data-sf]');if(sf){S.sf=sf.dataset.sf;S.lim=40;render();return}
   if(e.target.id==='more'){S.lim+=40;render();return}
   const a=e.target.closest('[data-act]');if(!a)return;
